@@ -10,7 +10,7 @@ ApplicationWindow{
         color: "green"
 
         Text {
-            text: "Hello World"
+            text: Model.currentValue
             anchors.centerIn: main
         }
     }
