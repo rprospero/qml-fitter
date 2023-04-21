@@ -32,18 +32,13 @@ ApplicationWindow{
         TextField { id: x_max }
     }
 
-    Rectangle {
+    Image {
         id: main
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         anchors.left: options.right
 
-        color: "green"
-
-        Text {
-            text: model.y_min + "," + model.y_max
-            anchors.centerIn: main
-        }
+        source: model.image
     }
 }
