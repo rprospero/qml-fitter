@@ -10,7 +10,7 @@ class Model(QObject):
 
     m_slope = 0.0
     m_intercept = 0.0
-    m_xrange = (-5.0, 5.0)
+    m_xrange = [-5.0, 5.0]
 
     def __init__(self):
         QObject.__init__(self)
@@ -33,7 +33,24 @@ class Model(QObject):
     @intercept.setter
     def intercept(self, val):
         self.m_intercept = val
-        print(val)
+        self.modelChanged.emit()
+
+    @Property(float, notify=modelChanged)
+    def x_min(self):
+        return self.m_xrange[0]
+
+    @intercept.setter
+    def x_min(self, val):
+        self.m_xrange[0] = val
+        self.modelChanged.emit()
+
+    @Property(float, notify=modelChanged)
+    def x_max(self):
+        return self.m_xrange[1]
+
+    @intercept.setter
+    def x_max(self, val):
+        self.m_xrange[1] = val
         self.modelChanged.emit()
 
     @Property(float, notify=modelChanged)
