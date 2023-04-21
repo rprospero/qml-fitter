@@ -10,7 +10,7 @@ ApplicationWindow{
         color: "green"
 
         Text {
-            text: Model.currentValue
+            text: Model.slope + "," + Model.intercept
             anchors.centerIn: main
         }
     }

@@ -1,27 +1,35 @@
 import sys
+import numpy as np
 from PySide6.QtCore import QObject, Signal, Property, Slot
 from PySide6.QtWidgets import QApplication
 from PySide6.QtQuick import QQuickView
 from PySide6.QtQml import QQmlApplicationEngine
 
 class Model(QObject):
-    currentValueChanged = Signal()
+    modelChanged = Signal()
 
     def __init__(self):
         QObject.__init__(self)
-        self.m_currentValue = 0.0
-        self.currentValueChanged.connect(self.on_currentValueChanged)
+        self.m_slope = 0.0
+        self.m_intercept = 0.0
 
-    @Property(float, notify=currentValueChanged)
-    def currentValue(self):
-        return self.m_currentValue
+    @Property(float, notify=modelChanged)
+    def slope(self):
+        return self.m_slope
 
-    @currentValue.setter
-    def setCurrentValue(self, val):
-        if self.m_currentValue == val:
-            return
-        self.m_currentValue = val
-        self.currentValueChanged.emit()
+    @slope.setter
+    def slope(self, val):
+        self.m_slope = val
+        self.modelChanged.emit()
+
+    @Property(float, notify=modelChanged)
+    def intercept(self):
+        return self.m_intercept
+
+    @intercept.setter
+    def intercept(self, val):
+        self.m_intercept = val
+        self.modelChanged.emit()
 
     @Slot()
     def on_currentValueChanged(self):
