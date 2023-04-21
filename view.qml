@@ -1,13 +1,17 @@
 import QtQuick
+import QtQuick.Controls
 
-Rectangle {
-    id: main
-    width: 200
-    height: 200
-    color: "green"
+ApplicationWindow{
+    visible: true
+    title: "Fitter"
+    Rectangle {
+        id: main
+        anchors.fill: parent
+        color: "green"
 
-    Text {
-        text: "Hello World"
-        anchors.centerIn: main
+        Text {
+            text: "Hello World"
+            anchors.centerIn: main
+        }
     }
 }
