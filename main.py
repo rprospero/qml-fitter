@@ -85,6 +85,14 @@ class Model(QObject):
         qr = q * r
         return ((np.sin(qr) - qr * np.cos(qr))/qr**3)**2
 
+    @Property(float, notify=modelChanged)
+    def chiSquared(self):
+        if self._dataX is None:
+            return 0
+        guess = self._slope * self.sphere(self._dataX, self._intercept)
+        return np.sum((self._dataY - guess)**2/guess)
+
+
     @Property(QImage, notify=imageChanged)
     def image(self):
         self.calc()

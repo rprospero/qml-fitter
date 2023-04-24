@@ -63,6 +63,8 @@ ApplicationWindow{
             validator: DoubleValidator {}
             text: "1"
         }
+        Text { text: "Chi Squared" }
+        Text { text: model.chiSquared }
     }
 
     LiveImage {
