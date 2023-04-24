@@ -8,6 +8,8 @@ ApplicationWindow{
     id: window
     visible: true
     title: "Fitter"
+    width: 640
+    height: 480
 
     FileDialog {
         id: fileDialog
@@ -45,11 +47,12 @@ ApplicationWindow{
         }
     }
 
-    ColumnLayout {
+    GridLayout {
         id: options
         anchors.left: parent.left
         anchors.top: parent.top
         anchors.bottom: parent.bottom
+        columns: 2
 
         Text { text: "Intercept" }
         TextField { 
@@ -66,6 +69,7 @@ ApplicationWindow{
         Text { text: "Chi Squared" }
         Text { text: model.chiSquared }
         Button { 
+            width: parent.width
             text: "Fit"
             onClicked: {
                 model.fitData()
