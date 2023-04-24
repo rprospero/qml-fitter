@@ -61,11 +61,6 @@ class Model(QObject):
     def calc(self):
         self.m_xs = np.linspace(self.m_xrange[0], self.m_xrange[1], 100)
         self.m_ys = self.m_xs *self.m_slope + self.m_intercept
-        print(self.m_ys)
-        print(self.m_ys)
-        print(self.m_xrange)
-        print(self.m_slope)
-        print(self.m_intercept)
 
     @Property(float, notify=modelChanged)
     def y_min(self):
