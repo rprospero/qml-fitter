@@ -1,11 +1,35 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Dialogs
 import QtQuick.Layouts
 import Tutorial
 
 ApplicationWindow{
+    id: window
     visible: true
     title: "Fitter"
+
+    FileDialog {
+        id: fileDialog
+        onAccepted: model.loadFile(selectedFile)
+    }
+
+    menuBar: MenuBar {
+        Menu {
+            title: "&File"
+            Action {
+                text: "&Open data"
+                shortcut: StandardKey.Open
+                onTriggered: fileDialog.open()
+            }
+            Action {
+                text: "&Quit"
+                shortcut: StandardKey.Quit
+                icon.name: "application-exit"
+                onTriggered: window.close()
+            }
+        }
+    }
 
     Model {
         id: model
@@ -38,19 +62,6 @@ ApplicationWindow{
             id: slope 
             validator: DoubleValidator {}
             text: "1"
-        }
-
-        Text { text: "x_min" }
-        TextField { 
-            id: x_min
-            validator: DoubleValidator {}
-            text: "-5"
-        }
-        Text { text: "x_max" }
-        TextField { 
-            id: x_max
-            validator: DoubleValidator {}
-            text: "5"
         }
     }
 

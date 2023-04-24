@@ -1,6 +1,6 @@
 import sys
 import numpy as np
-from PySide6.QtCore import QObject, Signal, Property, Slot, QPoint
+from PySide6.QtCore import QObject, Signal, Property, Slot, QPoint, QUrl
 from PySide6.QtWidgets import QApplication
 from PySide6.QtQuick import QQuickView, QQuickPaintedItem
 from PySide6.QtGui import QImage, QPainter
@@ -10,11 +10,13 @@ from matplotlib.figure import Figure
 
 class Model(QObject):
     modelChanged = Signal()
+    dataChanged = Signal()
     imageChanged = Signal()
 
     _slope = 1.0
     _intercept = 0.0
-    _xrange = [-5.0, 5.0]
+    _dataX = None
+    _dataY = None
     _xs = []
     _ys = []
     _imageWidth = 1920
@@ -22,9 +24,10 @@ class Model(QObject):
 
     def __init__(self):
         QObject.__init__(self)
-        self._xs = np.linspace(self._xrange[0], self._xrange[1], 100)
-        self._ys = self._xs *self._slope + self._intercept
         self.modelChanged.connect(self.imageChanged)
+        self.dataChanged.connect(self.imageChanged)
+        self.calc()
+        self.modelChanged.emit()
 
     @Property(float, notify=modelChanged)
     def slope(self):
@@ -46,21 +49,15 @@ class Model(QObject):
 
     @Property(float, notify=modelChanged)
     def x_min(self):
-        return self._xrange[0]
-
-    @x_min.setter
-    def x_min(self, val):
-        self._xrange[0] = val
-        self.modelChanged.emit()
+        if self._dataX is not None:
+            return self._dataX[0]
+        return 0
 
     @Property(float, notify=modelChanged)
     def x_max(self):
-        return self._xrange[1]
-
-    @x_max.setter
-    def x_max(self, val):
-        self._xrange[1] = val
-        self.modelChanged.emit()
+        if self._dataX is not None:
+            return self._dataX[-1]
+        return 1
 
     @Property(int)
     def imageWidth(self):
@@ -81,7 +78,7 @@ class Model(QObject):
         self.imageChanged.emit()
 
     def calc(self):
-        self._xs = np.linspace(self._xrange[0], self._xrange[1], 100)
+        self._xs = np.linspace(self.x_min, self.x_max, 100)
         self._ys = self._xs *self._slope + self._intercept
 
     @Property(QImage, notify=imageChanged)
@@ -100,11 +97,21 @@ class Model(QObject):
         canvas = FigureCanvas(fig)
         ax = fig.add_subplot(111)
         ax.plot(self._xs, self._ys)
+        if self._dataX is not None:
+            ax.plot(self._dataX, self._dataY, "*")
         ax.set_title('test plot')
         canvas.draw()
         
         width, height = fig.figbbox.width, fig.figbbox.height
         return QImage(canvas.buffer_rgba(), width, height, QImage.Format_ARGB32)
+
+    @Slot(QUrl)
+    def loadFile(self, url : QUrl):
+        path = url.toLocalFile()
+        data = np.loadtxt(path)
+        self._dataX = data[:, 0]
+        self._dataY = data[:, 1]
+        self.dataChanged.emit()
 
 class LiveImage(QQuickPaintedItem):
     modelChanged = Signal()
