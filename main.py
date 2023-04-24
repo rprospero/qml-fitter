@@ -1,5 +1,6 @@
 import sys
 import numpy as np
+from scipy.optimize import curve_fit
 from PySide6.QtCore import QObject, Signal, Property, Slot, QPoint, QUrl
 from PySide6.QtWidgets import QApplication
 from PySide6.QtQuick import QQuickView, QQuickPaintedItem
@@ -7,6 +8,10 @@ from PySide6.QtGui import QImage, QPainter
 from PySide6.QtQml import QQmlApplicationEngine, qmlRegisterType
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
+
+def sphere(q, r, s):
+    qr = q * r
+    return s * ((np.sin(qr) - qr * np.cos(qr))/qr**3)**2
 
 class Model(QObject):
     modelChanged = Signal()
@@ -78,17 +83,13 @@ class Model(QObject):
 
     def calc(self):
         self._xs = np.linspace(self.x_min, self.x_max, 100)
-        self._ys = self._slope * self.sphere(self._xs, self._intercept)
-
-    def sphere(self, q, r):
-        qr = q * r
-        return ((np.sin(qr) - qr * np.cos(qr))/qr**3)**2
+        self._ys = sphere(self._xs, self._intercept, self._slope)
 
     @Property(float, notify=modelChanged)
     def chiSquared(self):
         if self._dataX is None:
             return 0
-        guess = self._slope * self.sphere(self._dataX, self._intercept)
+        guess = sphere(self._dataX, self._intercept, self._slope)
         return np.sum((self._dataY - guess)**2/guess)
 
 
@@ -125,6 +126,14 @@ class Model(QObject):
         self._dataX = data[:, 0]
         self._dataY = data[:, 1]
         self.dataChanged.emit()
+
+    @Slot()
+    def fitData(self):
+        fit, _ = curve_fit(sphere, self._dataX, self._dataY)
+        self._intercept = fit[0]
+        self._slope = fit[1]
+        self.modelChanged.emit()
+
 
 class LiveImage(QQuickPaintedItem):
     modelChanged = Signal()

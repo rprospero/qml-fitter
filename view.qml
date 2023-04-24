@@ -65,6 +65,14 @@ ApplicationWindow{
         }
         Text { text: "Chi Squared" }
         Text { text: model.chiSquared }
+        Button { 
+            text: "Fit"
+            onClicked: {
+                model.fitData()
+                intercept.text = model.intercept
+                slope.text = model.slope
+            }
+        }
     }
 
     LiveImage {
