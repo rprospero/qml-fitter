@@ -13,6 +13,10 @@ ApplicationWindow{
         slope: slope.text
         x_min: x_min.text
         x_max: x_max.text
+        onModelChanged: {
+            console.log("Updating")
+            main.update()
+        }
     }
 
     ColumnLayout {
@@ -22,23 +26,39 @@ ApplicationWindow{
         anchors.bottom: parent.bottom
 
         Text { text: "Intercept" }
-        TextField { id: intercept }
+        TextField { 
+            id: intercept 
+            validator: DoubleValidator {}
+            text: "1"
+        }
         Text { text: "Slope" }
-        TextField { id: slope }
+        TextField { 
+            id: slope 
+            validator: DoubleValidator {}
+            text: "1"
+        }
 
         Text { text: "x_min" }
-        TextField { id: x_min }
+        TextField { 
+            id: x_min
+            validator: DoubleValidator {}
+            text: "-5"
+        }
         Text { text: "x_max" }
-        TextField { id: x_max }
+        TextField { 
+            id: x_max
+            validator: DoubleValidator {}
+            text: "5"
+        }
     }
 
-    Image {
+    GraphImage {
         id: main
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         anchors.left: options.right
 
-        source: model.image
+        model: model
     }
 }

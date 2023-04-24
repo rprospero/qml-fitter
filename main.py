@@ -1,9 +1,9 @@
 import sys
 import numpy as np
-from PySide6.QtCore import QObject, Signal, Property, Slot
+from PySide6.QtCore import QObject, Signal, Property, Slot, QRect
 from PySide6.QtWidgets import QApplication
-from PySide6.QtQuick import QQuickView, QQuickImageProvider
-from PySide6.QtGui import QImage
+from PySide6.QtQuick import QQuickView, QQuickPaintedItem
+from PySide6.QtGui import QImage, QPainter
 from PySide6.QtQml import QQmlApplicationEngine, qmlRegisterType
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -11,7 +11,7 @@ from matplotlib.figure import Figure
 class Model(QObject):
     modelChanged = Signal()
 
-    m_slope = 0.0
+    m_slope = 1.0
     m_intercept = 0.0
     m_xrange = [-5.0, 5.0]
     m_xs = []
@@ -44,7 +44,7 @@ class Model(QObject):
     def x_min(self):
         return self.m_xrange[0]
 
-    @intercept.setter
+    @x_min.setter
     def x_min(self, val):
         self.m_xrange[0] = val
         self.modelChanged.emit()
@@ -53,44 +53,52 @@ class Model(QObject):
     def x_max(self):
         return self.m_xrange[1]
 
-    @intercept.setter
+    @x_max.setter
     def x_max(self, val):
         self.m_xrange[1] = val
         self.modelChanged.emit()
 
-    @Property(float, notify=modelChanged)
-    def y_min(self):
+    def calc(self):
         self.m_xs = np.linspace(self.m_xrange[0], self.m_xrange[1], 100)
         self.m_ys = self.m_xs *self.m_slope + self.m_intercept
+        print(self.m_ys)
+        print(self.m_ys)
+        print(self.m_xrange)
+        print(self.m_slope)
+        print(self.m_intercept)
+
+    @Property(float, notify=modelChanged)
+    def y_min(self):
+        self.calc()
         return np.min(self.m_ys)
 
     @Property(float, notify=modelChanged)
     def y_max(self):
-        self.m_xs = np.linspace(self.m_xrange[0], self.m_xrange[1], 100)
-        self.m_ys = self.m_xs *self.m_slope + self.m_intercept
+        self.calc()
         return np.max(self.m_ys)
 
-    @Property(str, notify=modelChanged)
-    def image(self):
-        self.m_xs = np.linspace(self.m_xrange[0], self.m_xrange[1], 100)
-        self.m_ys = self.m_xs *self.m_slope + self.m_intercept
-        return "image://tutorialProvider/{}".format(np.random.rand())
-
-class Provider(QQuickImageProvider):
-    imageChanged = Signal()
+class GraphImage(QQuickPaintedItem):
+    modelChanged = Signal()
     m_model = None
 
-    def __init__(self, model):
-        super(Provider, self).__init__(QQuickImageProvider.Image)
-        self.m_model = model
-        self.imageChanged.emit()
+    def __init__(self):
+        QQuickPaintedItem.__init__(self)
 
-    def requestImage(self, id, size, requestedSize):
-        print("id: ", id)
-        print("size: ", size)
-        print("requestedSize: ", requestedSize)
+    @Property(Model, notify=modelChanged)
+    def model(self):
+        return self.m_model
 
-        fig = Figure()
+    @model.setter
+    def model(self, m):
+        self.m_model = m
+        self.modelChanged.emit()
+
+    def paint(self, painter : QPainter):
+        # size = bounding_rect()
+        # print("size: ", size)
+        self.model.calc()
+
+        fig = Figure(figsize=(self.width()/100.0, self.height()/100.0), dpi=100)
         canvas = FigureCanvas(fig)
         ax = fig.add_subplot(111)
         ax.plot(self.m_model.m_xs, self.m_model.m_ys)
@@ -98,16 +106,14 @@ class Provider(QQuickImageProvider):
         canvas.draw()
         
         width, height = fig.figbbox.width, fig.figbbox.height
-        return QImage(canvas.buffer_rgba(), width, height, QImage.Format_ARGB32)
+        image = QImage(canvas.buffer_rgba(), width, height, QImage.Format_ARGB32)
+        painter.drawImage(QRect(0, 0, width, height), image)
 
 if __name__ == "__main__":
     app = QApplication()
     engine = QQmlApplicationEngine()
-    model = Model()
     qmlRegisterType(Model, "Tutorial", 1, 0, "Model")
-
-    provider = Provider(model)
-    engine.addImageProvider("tutorialProvider", provider)
+    qmlRegisterType(GraphImage, "Tutorial", 1, 0, "GraphImage")
 
     engine.load('view.qml')
 
