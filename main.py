@@ -17,6 +17,7 @@ class Model(QObject):
     modelChanged = Signal()
     dataChanged = Signal()
     imageChanged = Signal()
+    chiSquaredChanged = Signal()
 
     _slope = 1.0
     _intercept = 0.0
@@ -30,7 +31,10 @@ class Model(QObject):
     def __init__(self):
         QObject.__init__(self)
         self.modelChanged.connect(self.imageChanged)
+        self.modelChanged.connect(self.chiSquaredChanged)
+        self.modelChanged.connect(self.calc)
         self.dataChanged.connect(self.imageChanged)
+        self.dataChanged.connect(self.chiSquaredChanged)
         self.modelChanged.emit()
 
     @Property(float, notify=modelChanged)
@@ -85,7 +89,7 @@ class Model(QObject):
         self._xs = np.linspace(self.x_min, self.x_max, 100)
         self._ys = sphere(self._xs, self._intercept, self._slope)
 
-    @Property(float, notify=modelChanged)
+    @Property(float, notify=chiSquaredChanged)
     def chiSquared(self):
         if self._dataX is None:
             return 0
@@ -95,8 +99,6 @@ class Model(QObject):
 
     @Property(QImage, notify=imageChanged)
     def image(self):
-        self.calc()
-
         width = self._imageWidth/100.0
         if self._imageWidth < 0:
             width = 0
