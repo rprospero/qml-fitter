@@ -83,7 +83,7 @@ class Model(QObject):
 
     def sphere(self, q, r):
         qr = q * r
-        return (np.sin(qr) - qr * np.cos(qr))/qr**3
+        return ((np.sin(qr) - qr * np.cos(qr))/qr**3)**2
 
     @Property(QImage, notify=imageChanged)
     def image(self):
@@ -100,6 +100,8 @@ class Model(QObject):
         fig = Figure(dpi=100, figsize=(width, height))
         canvas = FigureCanvas(fig)
         ax = fig.add_subplot(111)
+        ax.set_yscale("log")
+        ax.set_xscale("log")
         ax.plot(self._xs, self._ys)
         if self._dataX is not None:
             ax.plot(self._dataX, self._dataY, "*")
