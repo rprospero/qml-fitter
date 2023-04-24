@@ -79,7 +79,11 @@ class Model(QObject):
 
     def calc(self):
         self._xs = np.linspace(self.x_min, self.x_max, 100)
-        self._ys = self._xs *self._slope + self._intercept
+        self._ys = self._slope * self.sphere(self._xs, self._intercept)
+
+    def sphere(self, q, r):
+        qr = q * r
+        return (np.sin(qr) - qr * np.cos(qr))/qr**3
 
     @Property(QImage, notify=imageChanged)
     def image(self):
