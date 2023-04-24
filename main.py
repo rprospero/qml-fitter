@@ -106,7 +106,7 @@ class Model(QObject):
         width, height = fig.figbbox.width, fig.figbbox.height
         return QImage(canvas.buffer_rgba(), width, height, QImage.Format_ARGB32)
 
-class GraphImage(QQuickPaintedItem):
+class LiveImage(QQuickPaintedItem):
     modelChanged = Signal()
     _image = None
 
@@ -131,7 +131,7 @@ if __name__ == "__main__":
     app = QApplication()
     engine = QQmlApplicationEngine()
     qmlRegisterType(Model, "Tutorial", 1, 0, "Model")
-    qmlRegisterType(GraphImage, "Tutorial", 1, 0, "GraphImage")
+    qmlRegisterType(LiveImage, "Tutorial", 1, 0, "LiveImage")
 
     engine.load('view.qml')
 

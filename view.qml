@@ -54,7 +54,7 @@ ApplicationWindow{
         }
     }
 
-    GraphImage {
+    LiveImage {
         id: main
         anchors.top: parent.top
         anchors.bottom: parent.bottom
