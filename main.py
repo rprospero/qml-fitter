@@ -26,7 +26,6 @@ class Model(QObject):
         QObject.__init__(self)
         self.modelChanged.connect(self.imageChanged)
         self.dataChanged.connect(self.imageChanged)
-        self.calc()
         self.modelChanged.emit()
 
     @Property(float, notify=modelChanged)
