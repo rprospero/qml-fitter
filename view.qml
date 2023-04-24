@@ -41,8 +41,7 @@ ApplicationWindow{
         x_max: x_max.text
         imageWidth: main.width
         imageHeight: main.height
-        onModelChanged: {
-            console.log("Updating")
+        onImageChanged: {
             main.update()
         }
     }
