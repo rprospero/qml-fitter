@@ -13,6 +13,8 @@ ApplicationWindow{
         slope: slope.text
         x_min: x_min.text
         x_max: x_max.text
+        imageWidth: main.width
+        imageHeight: main.height
         onModelChanged: {
             console.log("Updating")
             main.update()
@@ -59,6 +61,6 @@ ApplicationWindow{
         anchors.right: parent.right
         anchors.left: options.right
 
-        model: model
+        image: model.image
     }
 }
